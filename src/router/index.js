@@ -1,34 +1,64 @@
 import {createRouter,createWebHashHistory} from 'vue-router'
+import login from '@/views/login/login.vue'
+import register from '@/views/login/register.vue'
+import err from '@/views/404'
+import home from '@/views/index.vue'
+
+import adminlayout from '@/layout/adminlayout.vue'
+import clientlayout from '@/layout/clientlayout.vue'
+import deliverylayout from '@/layout/deliverylayout.vue'
+
+
+//管理员
+import ordermanage from '@/views/admin/ordermanage.vue'
+import productedit from '@/views/admin/productedit.vue'
+import productlist from '@/views/admin/productedit.vue'
+import adminprofile from '@/views/admin/profile.vue'
+import usermanage from '@/views/admin/usermanage.vue'
+
+//客户
+import myorders from '@/views/client/myorders.vue'
+import productbrowse from '@/views/client/productbrowse.vue'
+import clientprofile from '@/views/client/profile.vue'
+
+//配送员
+import deliveryorders from '@/views/delivery/deliveryorders.vue'
+import deliveryprofile from '@/views/delivery/profile.vue'
+
+//引入pinia里面的state属性和方法
+import useUserStore from "@/store/modules/userStore"
 
 const routes = [
-    { path: '/login', component: errorcatch},
-    { path: '/login', component: LoginView },
-    { path: '/register', component: RegisterView },
+    { path: '/login', component: login },
+    { path: '/404', component: err },
+    { path: '/', component: login },
+    { path: '/register', component: register },
     {
         path: '/client',
-        component: ClientLayout,
+        component: clientlayout,
         children: [
-            { path: 'products', component: ClientProductView },
-            { path: 'orders', component: ClientOrderView },
-            { path: 'profile', component: ProfileView },
+            { path: 'products', component: productlist },
+            { path: 'orders', component: myorders },
+            { path: 'profile', component: clientprofile },
         ]
     },
     {
         path: '/admin',
-        component: AdminLayout,
+        component: adminlayout,
         children: [
-            { path: 'products', component: AdminProductView },
-            { path: 'orders', component: AdminOrderView },
-            { path: 'users', component: UserManageView },
-            { path: 'profile', component: ProfileView },
+            { path: 'productlist', component: productlist },
+            { path: 'productedit', component: productedit },
+            { path: 'orders', component: ordermanage },
+            { path: 'users', component: usermanage },
+            { path: 'profile', component: adminprofile },
         ]
     },
     {
         path: '/delivery',
-        component: DeliveryLayout,
+        component: deliverylayout,
         children: [
-            { path: 'orders', component: DeliveryOrderView },
-            { path: 'profile', component: ProfileView },
+            { path: 'orders', component: deliveryorders },
+            { path: 'profile', component: deliveryprofile },
         ]
     },
 ]
@@ -96,6 +126,9 @@ function  handleRouteInEditableTabs(to,store) {
     }
 }
 
+//黑名单,在该黑名单里面的路由将不会动态加载tab页
+const blackList=['/404','/']
+
 //路由前置守卫
 router.beforeEach((to, from, next) => {
     //如果没有匹配到路由,则跳转到404页面
@@ -108,7 +141,7 @@ router.beforeEach((to, from, next) => {
         const store = useUserStore()
         //更改tab标签绑定值，选中选项卡的name
         store.updateState(["editableTabsValue", to.path])
-        //更改当前激活的菜单
+        //更改当前激活的菜
         store.updateState(["activeMenu", to.path])
         //动态添加tab页及tab页切换时参数也跟着切换
         handleRouteInEditableTabs(to,store)
