@@ -37,7 +37,7 @@ const handleLogin = async () => {
       if (role === 'admin') {
         router.push('/admin/products')
       } else if (role === 'client') {
-        router.push('/client/products')
+        router.push('/client/profile')
       } else if (role === 'delivery') {
         router.push('/delivery/orders')
       } else {

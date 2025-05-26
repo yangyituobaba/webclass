@@ -14,10 +14,12 @@ export function register(userData) {
     return axios.post(`${API_BASE_URL}/register`, userData);
 }
 
-// 获取用户信息
-export function getUserInfo(userId) {
-    return axios.get(`${API_BASE_URL}/info/${userId}`);
+export const getUserProfile = (username) => {
+    return axios.get('${API_BASE_URL}/profile', {
+        params: { username }
+    }).then(res => res.data)
 }
+
 
 // 更新用户信息
 export function updateUser(userData) {
