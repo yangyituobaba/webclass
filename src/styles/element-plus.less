@@ -1,0 +1,29 @@
+//移除头部间距,让宽度100%占满
+.el-header{
+  --el-header-padding:0px;
+  min-width: 1000px;
+}
+//未打开tab页右边背景色
+.el-tabs__nav-scroll{
+  background: #FFFFFF;
+}
+//设置内容背景颜色
+.el-main{
+  background: #F2F6FB;
+  min-width: 1000px;
+}
+//让el-tabs__content不显示内容
+.el-tabs--border-card>.el-tabs__content{
+  padding: 0px;
+}
+//Tabs标签页全局样式
+.el-tabs__item {
+  height: 64px;
+  font-size: 16px;
+  background: #ffffff; //未选中Tabs页背景颜色
+}
+//Tabs标签页选中样式
+.el-tabs--border-card > .el-tabs__header .el-tabs__item.is-active {
+  color: #1b68b6; //选中Tabs标签页后字体颜色
+  background-color: #e3edf7; //选中Tabs标签页后背景颜色
+}
