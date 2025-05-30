@@ -12,6 +12,7 @@ const useUserStore = defineStore('user', {
     //准备state——用于存储数据
     state: () => {
         return {
+            username:'',
             role:'',
             menulist:[],
             //当前激活菜单的index
@@ -30,6 +31,10 @@ const useUserStore = defineStore('user', {
         //自定义持久化参数，指定以下state里面的属性进行缓存，未指定的不进行缓存
         strategies: [
             {
+                key: 'username',
+                storage: sessionStorage,
+                paths: ['username']
+            },{
                 key:'role',
                 storage:sessionStorage,
                 path:['role']
@@ -109,6 +114,9 @@ const useUserStore = defineStore('user', {
             this.editableTabsValue = activeName
             this.editableTabs = tabs.filter(tab => tab.name !== targetName)
             this.tabRouterList = this.tabRouterList.filter(item => item.path !== targetName)
+        },
+        setUsername(loginname){
+            this.username = loginname
         },
         setRole(newRole){
             this.role = newRole

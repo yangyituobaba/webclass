@@ -59,9 +59,9 @@ button:focus-visible {
 }
 
 #app {
-  max-width: 1280px;
+  width: 100%;
+  max-width: none; /* 取消最大宽度限制 */
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
 }
 

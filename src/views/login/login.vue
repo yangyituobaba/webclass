@@ -37,11 +37,13 @@ const handleLogin = async () => {
 
       //这里是登录成功
       ElMessage.success('登录成功')
-      localStorage.setItem('username', res.data.data.username)
 
       const role = res.data.data.role
+      const id = res.data.data.id
 
       const userStore = useUserStore()
+      userStore.setUsername(res.data.data.username)
+      console.log(userStore.username)
       userStore.setRole(role)
       userStore.setMenuList(menulistt[role])
 

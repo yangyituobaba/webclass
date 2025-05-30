@@ -1,5 +1,4 @@
 <template>
-  <Layoutt>
   <div class="profile-container">
     <el-card>
       <template #header>
@@ -20,7 +19,7 @@
       </el-skeleton>
     </el-card>
   </div>
-  </Layoutt>
+
 </template>
 
 <script setup>
@@ -67,11 +66,11 @@ onMounted(async () => {
 
 <style scoped>
 .profile-container {
-  max-width: 100%;
-  margin: 100% auto;
+  margin: 5px auto; /* 水平居中，顶部底部间距50px */
+  padding: 5px;
 }
+
 .card-header {
-  font-size: 18px;
   font-weight: bold;
 }
 </style>
