@@ -15,11 +15,9 @@ export function register(userData) {
 }
 
 export const getUserProfile = (username) => {
-    return axios.get('${API_BASE_URL}/profile', {
-        params: { username }
-    }).then(res => res.data)
+    return axios.post(`${API_BASE_URL}/info`, { username })
+        .then(res => res.data)
 }
-
 
 // 更新用户信息
 export function updateUser(userData) {

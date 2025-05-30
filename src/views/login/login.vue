@@ -10,7 +10,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="handleLogin">登录</el-button>
-        <el-button type="link" @click="goRegister">去注册</el-button>
+        <el-button type="text" @click="goRegister">去注册</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -20,7 +20,9 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { login } from '@/services/user.js'  // 改成你的路径
+import { login } from '@/services/user.js'
+import useUserStore from "@/store/modules/userStore.js";  // 改成你的路径
+import { menulistt } from "@/layout/menuconfig.js"
 
 const router = useRouter()
 const form = ref({
@@ -32,13 +34,28 @@ const handleLogin = async () => {
   try {
     const res = await login(form.value.username, form.value.password)
     if (res.data.code === 200 && res.data.data) {
+
+      //这里是登录成功
       ElMessage.success('登录成功')
+      localStorage.setItem('username', res.data.data.username)
+
       const role = res.data.data.role
+
+      const userStore = useUserStore()
+      userStore.setRole(role)
+      userStore.setMenuList(menulistt[role])
+
       if (role === 'admin') {
+        console.log('admin')
         router.push('/admin/products')
       } else if (role === 'client') {
+        console.log('client')
+        console.log(role)
+        console.log(menulistt[role])
+        console.log(userStore.menulist)
         router.push('/client/profile')
       } else if (role === 'delivery') {
+        console.log('delivery')
         router.push('/delivery/orders')
       } else {
         ElMessage.error('未知用户角色')

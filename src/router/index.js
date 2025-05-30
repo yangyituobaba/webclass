@@ -12,7 +12,7 @@ import deliverylayout from '@/layout/deliverylayout.vue'
 //管理员
 import ordermanage from '@/views/admin/ordermanage.vue'
 import productedit from '@/views/admin/productedit.vue'
-import productlist from '@/views/admin/productedit.vue'
+import productlist from '@/views/admin/productlist.vue'
 import adminprofile from '@/views/admin/profile.vue'
 import usermanage from '@/views/admin/usermanage.vue'
 
@@ -37,9 +37,9 @@ const routes = [
         path: '/client',
         component: clientlayout,
         children: [
-            { path: 'products', component: productlist },
+            { path: 'products', component: productbrowse },
             { path: 'orders', component: myorders },
-            { path: 'profile', component: clientprofile },
+            { path: 'profile', component: clientprofile,meta: { title: '客户资料' }},
         ]
     },
     {
@@ -131,6 +131,7 @@ const blackList=['/404','/']
 
 //路由前置守卫
 router.beforeEach((to, from, next) => {
+    console.log('守卫:from',from.path,'to',to.path)
     //如果没有匹配到路由,则跳转到404页面
     if (to.matched.length === 0) {
         next("/404")

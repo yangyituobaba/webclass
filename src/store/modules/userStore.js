@@ -12,6 +12,8 @@ const useUserStore = defineStore('user', {
     //准备state——用于存储数据
     state: () => {
         return {
+            role:'',
+            menulist:[],
             //当前激活菜单的index
             activeMenu: '',
             //绑定值，选中选项卡的name
@@ -27,6 +29,16 @@ const useUserStore = defineStore('user', {
         enabled: true,//开启缓存，默认缓存所有state里面的属性，默认key为defineStore里面的id值,这里id值为user,所以默认key为user
         //自定义持久化参数，指定以下state里面的属性进行缓存，未指定的不进行缓存
         strategies: [
+            {
+                key:'role',
+                storage:sessionStorage,
+                path:['role']
+            },
+            {
+                key: 'menulist',
+                storage: sessionStorage,
+                paths: ['menulist']
+            },
             {
                 // 自定义key
                 key: 'activeMenu',
@@ -97,6 +109,12 @@ const useUserStore = defineStore('user', {
             this.editableTabsValue = activeName
             this.editableTabs = tabs.filter(tab => tab.name !== targetName)
             this.tabRouterList = this.tabRouterList.filter(item => item.path !== targetName)
+        },
+        setRole(newRole){
+            this.role = newRole
+        },
+        setMenuList(menu) {
+            this.menulist = menu
         }
     }
 })
