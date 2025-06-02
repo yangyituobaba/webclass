@@ -20,7 +20,8 @@ import usermanage from '@/views/admin/usermanage.vue'
 import myorders from '@/views/client/myorders.vue'
 import productbrowse from '@/views/client/productbrowse.vue'
 import clientprofile from '@/views/client/profile.vue'
-
+import orderConfirm from '@/views/client/orderConfim.vue'
+import productdetail from '@/views/client/productDetail.vue'
 //配送员
 import deliveryorders from '@/views/delivery/deliveryorders.vue'
 import deliveryprofile from '@/views/delivery/profile.vue'
@@ -39,7 +40,9 @@ const routes = [
         children: [
             { path: 'products', component: productbrowse },
             { path: 'orders', component: myorders },
+            { path: 'detail/:id', component: productdetail },
             { path: 'profile', component: clientprofile,meta: { title: '客户资料' }},
+            { path: 'confirm', component: orderConfirm,meta: { title: '购物车' }},
         ]
     },
     {

@@ -1,5 +1,6 @@
 //使用pinia来管理全局状态
 import { defineStore } from "pinia"
+import axios from "axios";
 
 /*defineStore 是需要传参数的，其中第一个参数是id，就是一个唯一的值，
 简单点说就可以理解成是一个命名空间.
@@ -14,6 +15,8 @@ const useUserStore = defineStore('user', {
         return {
             username:'',
             role:'',
+            token: '',           // 新增，存储登录返回的 token
+            deviceType: 'WEB',   // 新增，默认设备类型
             menulist:[],
             //当前激活菜单的index
             activeMenu: '',
@@ -34,7 +37,10 @@ const useUserStore = defineStore('user', {
                 key: 'username',
                 storage: sessionStorage,
                 paths: ['username']
-            },{
+            },
+            { key: 'token', storage: sessionStorage, paths: ['token'] },        // 新增
+            { key: 'deviceType', storage: sessionStorage, paths: ['deviceType'] },// 新增
+            {
                 key:'role',
                 storage:sessionStorage,
                 path:['role']
@@ -69,9 +75,6 @@ const useUserStore = defineStore('user', {
             }
         ]
     },
-    getters: {
-
-    },
     //准备actions——用于响应组件中的动作和用于操作数据（state）,pinia中只有state、getter、action，抛弃了Vuex中的Mutation
     actions: {
         /**
@@ -81,6 +84,25 @@ const useUserStore = defineStore('user', {
          */
         updateState([name, value]) {
             this[name] = value
+        },
+        setToken(newToken) {
+            this.token = newToken
+        },
+
+        setDeviceType(newDeviceType) {
+            this.deviceType = newDeviceType
+        },
+
+        logout() {
+            this.username = ''
+            this.role = ''
+            this.token = ''
+            this.deviceType = 'WEB'
+            this.menulist = []
+            this.activeMenu = ''
+            this.editableTabsValue = ''
+            this.editableTabs = []
+            this.tabRouterList = []
         },
         //动态添加tab标签,item为当前点击的菜单项
         addTab(item) {
@@ -124,7 +146,22 @@ const useUserStore = defineStore('user', {
         setMenuList(menu) {
             this.menulist = menu
         }
+    },
+    getters: {
+
     }
+});
+
+axios.interceptors.request.use(config => {
+    if (userStore.token) {
+        config.headers['Authorization'] = userStore.token
+    }
+    if (userStore.deviceType) {
+        config.headers['Device-Type'] = userStore.deviceType
+    }
+    return config
+}, error => {
+    return Promise.reject(error)
 })
 
 export default useUserStore

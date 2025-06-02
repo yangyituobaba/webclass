@@ -21,7 +21,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { login } from '@/services/user.js'
-import useUserStore from "@/store/modules/userStore.js";  // 改成你的路径
+import useUserStore from "@/store/modules/userStore.js";
 import { menulistt } from "@/layout/menuconfig.js"
 
 const router = useRouter()
@@ -34,30 +34,20 @@ const handleLogin = async () => {
   try {
     const res = await login(form.value.username, form.value.password)
     if (res.data.code === 200 && res.data.data) {
-
-      //这里是登录成功
       ElMessage.success('登录成功')
-
-      const role = res.data.data.role
-      const id = res.data.data.id
+      const userInfo = res.data.data
 
       const userStore = useUserStore()
-      userStore.setUsername(res.data.data.username)
-      console.log(userStore.username)
-      userStore.setRole(role)
-      userStore.setMenuList(menulistt[role])
+      userStore.setUsername(userInfo.username)
+      userStore.setRole(userInfo.role)
+      userStore.setMenuList(menulistt[userInfo.role])
 
-      if (role === 'admin') {
-        console.log('admin')
+      // 使用 userInfo.role 判断角色
+      if (userInfo.role === 'admin') {
         router.push('/admin/products')
-      } else if (role === 'client') {
-        console.log('client')
-        console.log(role)
-        console.log(menulistt[role])
-        console.log(userStore.menulist)
+      } else if (userInfo.role === 'client') {
         router.push('/client/profile')
-      } else if (role === 'delivery') {
-        console.log('delivery')
+      } else if (userInfo.role === 'delivery') {
         router.push('/delivery/orders')
       } else {
         ElMessage.error('未知用户角色')
@@ -66,6 +56,7 @@ const handleLogin = async () => {
       ElMessage.error('用户名或密码错误')
     }
   } catch (error) {
+    console.error('登录错误:', error)
     ElMessage.error('登录失败，请检查服务端是否启动')
   }
 }
@@ -73,7 +64,6 @@ const handleLogin = async () => {
 const goRegister = () => {
   router.push('/register')
 }
-
 </script>
 
 <style scoped>

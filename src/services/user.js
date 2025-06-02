@@ -4,9 +4,16 @@ import axios from 'axios';
 // 后端基础路径，根据你后端启动端口和上下文改
 const API_BASE_URL = 'http://localhost:8000/user';
 
-// 用户登录接口
-export function login(username, password) {
-    return axios.post(`${API_BASE_URL}/login`, { username, password });
+export function login(username, password, deviceType = 'WEB') {
+    return axios.post(
+        `${API_BASE_URL}/login`,
+        { username, password },
+        {
+            headers: {
+                'Device-Type': deviceType,
+            },
+        }
+    );
 }
 
 // 用户注册接口

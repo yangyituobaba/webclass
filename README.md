@@ -1,5 +1,19 @@
-# Vue 3 + Vite
+# 自助互联网电商平台
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+### 完成了login,register页面
+    包括用户的登录，注册
+### 订单列表
+    完成了用户订单列表展示 /order/list
+### 从product开始做
+    完成了用户产品界面的浏览 /product/list
+    接下来完成订单的形成
+    出现了设计的纰漏，前后端对与查询用户的逻辑不同，思考后，决定基于已经实现的功能，将查询用户的逻辑全部改为user_id查询
+    因为这个登录逻辑存在，所以必然存在username和userId的转换，所以我决定前端持久存储username，后端在接受到username后进行一步查询
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+    完成了订单创建 /order/create
+    完成了商品详情页的展示，以及加入购物车功能
+
+### 登录页面大爆炸
+    你妈的login方法发现由于之前的测试不完全，出现了用户切换状态不正确的情况
+
+
