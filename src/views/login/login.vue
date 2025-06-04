@@ -37,9 +37,16 @@ const handleLogin = async () => {
       ElMessage.success('登录成功')
       const userInfo = res.data.data
 
+
       const userStore = useUserStore()
+
       userStore.setUsername(userInfo.username)
+      console.log(userStore.username)
+
       userStore.setRole(userInfo.role)
+      userStore.setToken(userInfo.token)  // 存 token
+      console.log(userStore.token)
+
       userStore.setMenuList(menulistt[userInfo.role])
 
       // 使用 userInfo.role 判断角色

@@ -100,8 +100,7 @@ const router = useRouter()
 //使用路由相当于$route,点击菜单栏时当前点击的路由页面里面的属性值
 const route = useRoute()
 //用户名
-const username = '超级管理员'
-
+const username = store.username
 //触发右键菜单标签页为第一个时，不展示【关闭左侧标签页】
 //触发右键菜单标签页为最后一个时，不展示【关闭右侧标签页】
 const show = (name, type) => {

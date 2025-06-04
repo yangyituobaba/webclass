@@ -8,9 +8,8 @@ export const menulistt = {
     ],
     client: [
         { id: 1, url: "/client/products", meta: { title: "浏览商品", icon: "search" } },
-        { id: 1, url: "/client/confirm", meta: { title: "确认订单", icon: "confirm" } },
-        { id: 2, url: "/client/orders", meta: { title: "我的订单", icon: "order" } },
-        { id: 3, url: "/client/profile", meta: { title: "客户资料", icon: "user" } },
+        { id: 2, url: "/client/confirm", meta: { title: "确认订单", icon: "confirm" } },
+        { id: 3, url: "/client/profile", meta: { title: "客户主页", icon: "user" } },
     ],
     delivery: [
         { id: 1, url: "/delivery/orders", meta: { title: "配送订单", icon: "car" } },

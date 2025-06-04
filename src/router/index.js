@@ -17,7 +17,7 @@ import adminprofile from '@/views/admin/profile.vue'
 import usermanage from '@/views/admin/usermanage.vue'
 
 //客户
-import myorders from '@/views/client/myorders.vue'
+
 import productbrowse from '@/views/client/productbrowse.vue'
 import clientprofile from '@/views/client/profile.vue'
 import orderConfirm from '@/views/client/orderConfim.vue'
@@ -39,10 +39,9 @@ const routes = [
         component: clientlayout,
         children: [
             { path: 'products', component: productbrowse },
-            { path: 'orders', component: myorders },
             { path: 'detail/:id', component: productdetail },
-            { path: 'profile', component: clientprofile,meta: { title: '客户资料' }},
-            { path: 'confirm', component: orderConfirm,meta: { title: '购物车' }},
+            { path: 'profile', component: clientprofile},
+            { path: 'confirm', component: orderConfirm},
         ]
     },
     {

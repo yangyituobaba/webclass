@@ -1,32 +1,47 @@
 // services/user.js
-import axios from 'axios';
+import request from "@/utils/request.js";
 
-// 后端基础路径，根据你后端启动端口和上下文改
-const API_BASE_URL = 'http://localhost:8000/user';
+const API_BASE_URL = '/user'; // 统一前缀
 
+// 登录接口，返回 token 和用户信息
 export function login(username, password, deviceType = 'WEB') {
-    return axios.post(
+    return request.post(
         `${API_BASE_URL}/login`,
         { username, password },
         {
-            headers: {
-                'Device-Type': deviceType,
-            },
+            headers: { 'Device-Type': deviceType },
         }
     );
 }
 
-// 用户注册接口
+// 注册接口
 export function register(userData) {
-    return axios.post(`${API_BASE_URL}/register`, userData);
+    return request.post(`${API_BASE_URL}/register`, userData);
 }
 
-export const getUserProfile = (username) => {
-    return axios.post(`${API_BASE_URL}/info`, { username })
-        .then(res => res.data)
+// 获取当前用户信息接口，使用 token
+export function getUserProfile(token) {
+    return request.post(
+        `${API_BASE_URL}/info`,
+        {}, // 请求体为空
+        {
+            headers: {
+                Authorization: token
+            },
+        }
+    ).then(res => res.data);
 }
 
-// 更新用户信息
-export function updateUser(userData) {
-    return axios.put(`${API_BASE_URL}/update`, userData);
+// 更新用户信息接口
+export function updateUser(userData, token, password) {
+    return request.put(
+        `${API_BASE_URL}/update`,
+        userData,
+        {
+            headers: {
+                Authorization: token,
+                'Verification-Code': password,
+            },
+        }
+    );
 }

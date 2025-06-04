@@ -34,18 +34,6 @@ const useUserStore = defineStore('user', {
         //自定义持久化参数，指定以下state里面的属性进行缓存，未指定的不进行缓存
         strategies: [
             {
-                key: 'username',
-                storage: sessionStorage,
-                paths: ['username']
-            },
-            { key: 'token', storage: sessionStorage, paths: ['token'] },        // 新增
-            { key: 'deviceType', storage: sessionStorage, paths: ['deviceType'] },// 新增
-            {
-                key:'role',
-                storage:sessionStorage,
-                path:['role']
-            },
-            {
                 key: 'menulist',
                 storage: sessionStorage,
                 paths: ['menulist']
@@ -151,17 +139,5 @@ const useUserStore = defineStore('user', {
 
     }
 });
-
-axios.interceptors.request.use(config => {
-    if (userStore.token) {
-        config.headers['Authorization'] = userStore.token
-    }
-    if (userStore.deviceType) {
-        config.headers['Device-Type'] = userStore.deviceType
-    }
-    return config
-}, error => {
-    return Promise.reject(error)
-})
 
 export default useUserStore
