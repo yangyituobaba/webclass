@@ -16,6 +16,9 @@
             <h3>{{ item.name }}</h3>
             <p class="desc">{{ item.description }}</p>
             <div class="price">￥{{ item.price.toFixed(2) }}</div>
+            <router-link :to="`/client/detail/${item.id}`">
+              <el-button type="primary" size="small">查看详情</el-button>
+            </router-link>
           </div>
         </el-card>
       </el-col>
@@ -25,20 +28,62 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import useUserStore from "@/store/modules/userStore.js";
+import { getProducts } from '@/services/product.js'
 
-const userStore = useUserStore()
 const productList = ref([])
-const defaultImage = 'https://via.placeholder.com/200x150?text=No+Image'
+const defaultImage = 'https://dummyimage.com/200x150/cccccc/ffffff.png&text=No+Image'
+
 
 onMounted(async () => {
-  const res = await userStore.getProductList()
-  if (res && Array.isArray(res)) {
-    productList.value = res
-  } else {
-    console.error('获取产品列表失败')
+  try {
+    const response = await getProducts()
+    console.log("API原始响应:", response)
+
+    // 提取实际数据部分 - 根据API响应结构调整
+    let rawData = []
+
+    // 情况1：API返回 { data: { code:200, data: [...] } }
+    if (response?.data?.code === 200 && Array.isArray(response.data.data)) {
+      rawData = response.data.data
+    }
+    // 情况2：API返回 { data: [...] }
+    else if (Array.isArray(response?.data)) {
+      rawData = response.data
+    }
+    // 情况3：API直接返回数组
+    else if (Array.isArray(response)) {
+      rawData = response
+    }
+    // 其他格式处理
+    else if (response?.data?.items && Array.isArray(response.data.items)) {
+      rawData = response.data.items
+    }
+    else {
+      console.error('无法解析的产品数据格式', response)
+      productList.value = []
+      return
+    }
+
+    // 处理数据并赋值
+    productList.value = rawData.map(item => {
+      // 确保字段匹配数据库结构
+      return {
+        id: item.id || 0,
+        name: item.name || '未命名商品',
+        description: item.description || '',
+        price: typeof item.price === 'number' ? item.price : Number(item.price) || 0,
+        image_url: item.image_url || item.image || defaultImage,
+      }
+    })
+
+    console.log("处理后的产品数据:", productList.value)
+
+  } catch (error) {
+    console.error('获取产品列表失败:', error)
+    productList.value = []
   }
 })
+
 </script>
 
 <style scoped>

@@ -53,3 +53,24 @@ export function updateStatusByDelivery(orderId, status, deliveryId) {
 export function updateStatusByAdmin(orderId, status, deliveryId) {
     return request.post(`${API_BASE_URL}/update/admin`, { orderId, status, deliveryId });
 }
+
+// 管理员获取所有订单
+export function getAllOrders(token) {
+    return request.get(
+        `${API_BASE_URL}/all`,
+        {
+            headers: {
+                Authorization: token
+            }
+        }
+    ).then(res => res.data);
+}
+
+
+// 根据商品名称关键词模糊搜索订单（适用于所有人）
+// 模糊搜索订单（公开接口，不需要 token）
+export function searchOrdersByKeyword(keyword) {
+    return request.get(`/order/search`, {
+        params: { keyword }
+    }).then(res => res.data);
+}

@@ -51,7 +51,7 @@ const handleLogin = async () => {
 
       // 使用 userInfo.role 判断角色
       if (userInfo.role === 'admin') {
-        router.push('/admin/products')
+        router.push('/admin/profile')
       } else if (userInfo.role === 'client') {
         router.push('/client/profile')
       } else if (userInfo.role === 'delivery') {

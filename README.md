@@ -27,7 +27,7 @@
 ### 重新开始完成接口
     测试/user/login NONE 测试成功，登录页面显示成功
     测试/user/info PRIMARY 测试成功，个人信息页面显示成功
-    测试/product/list   /product/detai  NONE 测试成功，客户产品预览页显示成功 
+    测试/product/list   /product/detail  NONE 测试成功，客户产品预览页显示成功 
     测试/order/list PRIMARY 测试成功，“我的订单”页面显示成功
     合并“我的订单”和“个人主页”
 
@@ -37,9 +37,32 @@
     测试/update/client PRIMARY  
     在订单列表后面，加上修改按钮，支持用户修改（订单状态：已送达——>已收货，订单状态为待配送时，支持修改地址，备注，支持取消订单） 已添加
     接下来继续测试接口
+
+    
+
+    /user/register Y
+    /user/login Y
+    /user/info Y
+    /product/{id} Y
+    /product/list Y
+    /product/add Y
+    /product/update Y
+    /product/delete Y
+    /order/create Y
+    /order/detail Y
+    /order/list Y
+    /order/update/client
+    /order/update/delivery
+    /order/update/admin 
+    
+    
   
 # 记住
-    给order补remark和address 
-    给user补image（用户头像）
-    
-    
+    刷新后用户登录状态缺失
+    补充头像和图片显示
+    tab标签的显示错误
+    tab标签全部关闭后没有页面显示
+    新注册的用户信息没有储存到数据库
+    更新产品图片
+    删除产品的时候，产品在订单中
+    更改用户个人信息

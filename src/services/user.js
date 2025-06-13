@@ -45,3 +45,12 @@ export function updateUser(userData, token, password) {
         }
     );
 }
+
+// 获取所有用户
+export function fetchAllUsers(token) {
+    return request.get(`${API_BASE_URL}/all`, {
+        headers: {
+            Authorization: token
+        }
+    });
+}

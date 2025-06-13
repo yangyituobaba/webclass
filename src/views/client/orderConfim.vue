@@ -102,18 +102,19 @@ const submitOrder = () => {
 
     loading.value = true;
     try {
-      const order= {
-          items: items.value.map(item => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-          totalPrice: totalPrice.value,
-          address: form.value.address,
-          phone: form.value.phone,
-          remark: form.value.remark,
-          status: "待配送"
+      const order = {
+        items: items.value.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        totalPrice: totalPrice.value,
+        address: form.value.address,
+        contactPhone: form.value.phone, // ✅ 改这里
+        remark: form.value.remark,
+        status: "pending"
       };
+
       console.log(order);
       // 使用userStore中的token调用API
       const res = await createOrder(order, userStore.token);

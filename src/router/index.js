@@ -2,7 +2,6 @@ import {createRouter,createWebHashHistory} from 'vue-router'
 import login from '@/views/login/login.vue'
 import register from '@/views/login/register.vue'
 import err from '@/views/404'
-import home from '@/views/index.vue'
 
 import adminlayout from '@/layout/adminlayout.vue'
 import clientlayout from '@/layout/clientlayout.vue'

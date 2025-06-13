@@ -19,6 +19,7 @@
       </el-skeleton>
     </el-card>
   </div>
+
   <el-card>
     <div class="card-header2">
       <h2>我的订单</h2>
@@ -73,7 +74,13 @@
           {{ row.remark || '无备注' }}
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="订单状态" width="100" />
+
+      <el-table-column prop="status" label="订单状态" width="100">
+        <template #default="{ row }">
+          {{ statusMap[row.status] || row.status }}
+        </template>
+      </el-table-column>
+
       <el-table-column
           prop="totalPrice"
           label="总价"
@@ -88,14 +95,13 @@
       </el-table-column>
     </el-table>
 
-
     <el-empty v-if="orders.length === 0" description="暂无订单" />
   </el-card>
 
-<!--  “修改”按钮调出的页面-->
+  <!-- “修改”按钮调出的弹窗 -->
   <el-dialog v-model="editDialogVisible" title="修改订单">
     <div v-if="editingOrder">
-      <div v-if="editingOrder.status === '待配送'">
+      <div v-if="editingOrder.status === 'pending'">
         <el-form :model="editForm" label-width="80px">
           <el-form-item label="地址">
             <el-input v-model="editForm.address" />
@@ -105,7 +111,7 @@
           </el-form-item>
         </el-form>
       </div>
-      <div v-else-if="editingOrder.status === '已送达'">
+      <div v-else-if="editingOrder.status === 'completed'">
         <p>是否确认已收货？</p>
       </div>
       <div v-else>
@@ -116,11 +122,9 @@
     <template #footer>
       <el-button @click="editDialogVisible = false">取消</el-button>
       <el-button type="primary" @click="submitEdit">确认</el-button>
-      <el-button v-if="editingOrder?.status === '待配送'" type="danger" @click="cancelOrder">取消订单</el-button>
+      <el-button v-if="editingOrder?.status === 'pending'" type="danger" @click="cancelOrder">取消订单</el-button>
     </template>
   </el-dialog>
-
-
 </template>
 
 <script setup>
@@ -128,7 +132,7 @@ import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getUserProfile } from '@/services/user'
 import useUserStore from '@/store/modules/userStore.js'
-import {getOrders} from "@/services/order.js";
+import { getOrders } from '@/services/order.js'
 
 const userStore = useUserStore()
 const profile = ref({})
@@ -139,37 +143,37 @@ const roleMap = {
   admin: '管理员',
   delivery: '配送员'
 }
+const statusMap = {
+  pending: '待配送',
+  delivering: '配送中',
+  completed: '已完成'
+}
 
-
-//我的订单
-
+// 我的订单数据
 const orders = ref([])
-
 
 function formatPrice(row, column, cellValue) {
   if (typeof cellValue === 'number') {
-    return '¥' + cellValue.toFixed(2);
+    return '¥' + cellValue.toFixed(2)
   }
-  return '¥0.00';
+  return '¥0.00'
 }
 
 async function fetchOrders() {
   try {
-    const userStore = useUserStore()
     const token = userStore.token
 
-    // 调用后端接口获取订单列表
     const res = await getOrders(token)
 
-    // 处理返回数据，映射items中的商品名称，补充user信息
     orders.value = res.data.map(order => ({
       ...order,
-      items: order.items ? order.items.map(item => ({
-        productName: item.product?.name || item.productName || item.name || item.product_name || '无商品名',
-        quantity: item.quantity,
-        price: item.price
-      })) : [],
-      // 这里假设order中user对象包含用户名和地址
+      items: order.items
+          ? order.items.map(item => ({
+            productName: item.product?.name || item.productName || item.name || item.product_name || '无商品名',
+            quantity: item.quantity,
+            price: item.price
+          }))
+          : [],
       user: order.user || {},
       remark: order.remark || ''
     }))
@@ -185,9 +189,9 @@ const editForm = ref({
   remark: ''
 })
 
-const handleEdit = (order) => {
+const handleEdit = order => {
   editingOrder.value = { ...order }
-  if (order.status === '待配送') {
+  if (order.status === 'pending') {
     editForm.value.address = order.user?.address || ''
     editForm.value.remark = order.remark || ''
   }
@@ -198,25 +202,21 @@ const submitEdit = () => {
   if (!editingOrder.value) return
   const status = editingOrder.value.status
 
-  if (status === '待配送') {
-    // 模拟更新地址和备注逻辑
+  if (status === 'pending') {
+    // 模拟更新地址和备注逻辑（实际项目中这里要调用接口）
     editingOrder.value.user.address = editForm.value.address
     editingOrder.value.remark = editForm.value.remark
-  } else if (status === '已送达') {
-    // 修改为已收货
-    editingOrder.value.status = '已收货'
   }
 
   editDialogVisible.value = false
 }
 
 const cancelOrder = () => {
-  if (editingOrder.value?.status === '待配送') {
-    editingOrder.value.status = '已取消'
+  if (editingOrder.value?.status === 'pending') {
+    // 模拟取消订单逻辑（实际项目中这里要调用接口）
     editDialogVisible.value = false
   }
 }
-
 
 onMounted(async () => {
   const username = userStore.username
@@ -225,7 +225,6 @@ onMounted(async () => {
   if (!username || !token) {
     ElMessage.error('未找到登录信息，请重新登录')
     loading.value = false
-    // 跳转到登录页（如有必要）
     return
   }
 
@@ -245,10 +244,9 @@ onMounted(async () => {
 })
 </script>
 
-
 <style scoped>
 .profile-container {
-  margin: 5px auto; /* 水平居中，顶部底部间距50px */
+  margin: 5px auto; /* 水平居中，顶部底部间距5px */
   padding: 5px;
 }
 
