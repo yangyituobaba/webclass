@@ -1,6 +1,6 @@
 // services/user.js
 import request from "@/utils/request.js";
-
+import useUserStore from '@/store/modules/userStore.js'
 const API_BASE_URL = '/user'; // 统一前缀
 
 // 登录接口，返回 token 和用户信息
@@ -32,20 +32,6 @@ export function getUserProfile(token) {
     ).then(res => res.data);
 }
 
-// 更新用户信息接口
-export function updateUser(userData, token, password) {
-    return request.put(
-        `${API_BASE_URL}/update`,
-        userData,
-        {
-            headers: {
-                Authorization: token,
-                'Verification-Code': password,
-            },
-        }
-    );
-}
-
 // 获取所有用户
 export function fetchAllUsers(token) {
     return request.get(`${API_BASE_URL}/all`, {
@@ -53,4 +39,23 @@ export function fetchAllUsers(token) {
             Authorization: token
         }
     });
+}
+
+
+
+export function updateUser(userData,  currentPassword) {
+    const store = useUserStore();
+    const token = store.token  // ✅ 正确获取响应式状态中的 token
+    return request.put(
+        `${API_BASE_URL}/update`,
+        {
+            ...userData,
+            currentPassword
+        },
+        {
+            headers: {
+                Authorization: token
+            },
+        }
+    );
 }

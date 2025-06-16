@@ -19,14 +19,37 @@
       </el-skeleton>
     </el-card>
   </div>
+  <!-- 管理员统计区域 -->
+  <el-card class="admin-statistics" style="margin-top: 30px;">
+    <template #header>
+      <div class="card-header">
+        <h2>管理员统计信息</h2>
+      </div>
+    </template>
+
+    <div class="statistics-container" style="display: flex; gap: 20px;">
+      <!-- 左侧饼图 -->
+      <div ref="pieChart" style="width: 400px; height: 300px;"></div>
+
+      <!-- 右侧详细数字 -->
+      <div class="stats-details" style="flex: 1; font-size: 16px; line-height: 2;">
+        <p>订单总数：{{ stats.totalOrders }}</p>
+        <p>待配送订单数（Pending）：{{ stats.statusCounts.pending || 0 }}</p>
+        <p>配送中订单数（Delivering）：{{ stats.statusCounts.delivering || 0 }}</p>
+        <p>已完成订单数（Completed）：{{ stats.statusCounts.completed || 0 }}</p>
+        <p>总成交金额：¥{{ stats.totalRevenue.toFixed(2) }}</p>
+      </div>
+    </div>
+  </el-card>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted,watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getUserProfile } from '@/services/user'
 import useUserStore from '@/store/modules/userStore.js'
-import {getOrders} from "@/services/order.js";
+import {getAdminStatistics} from "@/services/order.js";
+import * as echarts from 'echarts'
 
 const userStore = useUserStore()
 const profile = ref({})
@@ -38,83 +61,105 @@ const roleMap = {
   delivery: '配送员'
 }
 
-
-//我的订单
-
-const orders = ref([])
-
-
-function formatPrice(row, column, cellValue) {
-  if (typeof cellValue === 'number') {
-    return '¥' + cellValue.toFixed(2);
-  }
-  return '¥0.00';
-}
-
-async function fetchOrders() {
-  try {
-    const userStore = useUserStore()
-    const token = userStore.token
-
-    // 调用后端接口获取订单列表
-    const res = await getOrders(token)
-
-    // 处理返回数据，映射items中的商品名称，补充user信息
-    orders.value = res.data.map(order => ({
-      ...order,
-      items: order.items ? order.items.map(item => ({
-        productName: item.product?.name || item.productName || item.name || item.product_name || '无商品名',
-        quantity: item.quantity,
-        price: item.price
-      })) : [],
-      // 这里假设order中user对象包含用户名和地址
-      user: order.user || {},
-      remark: order.remark || ''
-    }))
-  } catch (err) {
-    console.error('获取订单失败:', err)
-  }
-}
-
-const editDialogVisible = ref(false)
-const editingOrder = ref(null)
-const editForm = ref({
-  address: '',
-  remark: ''
+//饼图
+const stats = ref({
+  totalOrders: 0,
+  statusCounts: {
+    pending: 0,
+    delivering: 0,
+    completed: 0
+  },
+  totalRevenue: 0
 })
 
-const handleEdit = (order) => {
-  editingOrder.value = { ...order }
-  if (order.status === '待配送') {
-    editForm.value.address = order.user?.address || ''
-    editForm.value.remark = order.remark || ''
+
+const pieChart = ref(null)
+let chartInstance = null
+const orders = ref([])
+
+// 初始化饼图
+function initChart() {
+  if (!pieChart.value) return
+  chartInstance = echarts.init(pieChart.value)
+
+  const option = {
+    title: {
+      text: '订单状态分布',
+      left: 'center',
+      top: 10,
+      textStyle: { fontSize: 16 }
+    },
+    tooltip: {
+      trigger: 'item'
+    },
+    legend: {
+      bottom: 10,
+      left: 'center',
+      data: ['Pending', 'Delivering', 'Completed']
+    },
+    series: [
+      {
+        name: '订单状态',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        label: {
+          show: true,
+          position: 'outside',
+          formatter: '{b}: {c} ({d}%)'
+        },
+        labelLine: {
+          show: true
+        },
+        data: [
+          { value: stats.value.statusCounts.pending || 0, name: 'Pending' },
+          { value: stats.value.statusCounts.delivering || 0, name: 'Delivering' },
+          { value: stats.value.statusCounts.completed || 0, name: 'Completed' }
+        ]
+      }
+    ]
   }
-  editDialogVisible.value = true
+
+  chartInstance.setOption(option)
 }
 
-const submitEdit = () => {
-  if (!editingOrder.value) return
-  const status = editingOrder.value.status
-
-  if (status === '待配送') {
-    // 模拟更新地址和备注逻辑
-    editingOrder.value.user.address = editForm.value.address
-    editingOrder.value.remark = editForm.value.remark
-  } else if (status === '已送达') {
-    // 修改为已收货
-    editingOrder.value.status = '已收货'
-  }
-
-  editDialogVisible.value = false
+// 更新饼图数据
+function updateChart() {
+  if (!chartInstance) return
+  chartInstance.setOption({
+    series: [
+      {
+        data: [
+          { value: stats.value.statusCounts.pending || 0, name: 'Pending' },
+          { value: stats.value.statusCounts.delivering || 0, name: 'Delivering' },
+          { value: stats.value.statusCounts.completed || 0, name: 'Completed' }
+        ]
+      }
+    ]
+  })
 }
 
-const cancelOrder = () => {
-  if (editingOrder.value?.status === '待配送') {
-    editingOrder.value.status = '已取消'
-    editDialogVisible.value = false
+// 监听数据变化，更新饼图
+watch(stats, () => {
+  if (!chartInstance) {
+    initChart()
+  } else {
+    updateChart()
+  }
+}, { deep: true })
+
+// 获取后台统计数据
+async function fetchStatistics() {
+  try {
+    const res = await getAdminStatistics()
+    console.log(res)
+    if (res.code === 200) {
+      stats.value = res.data
+    }
+  } catch (e) {
+    console.error('获取管理员统计信息失败:', e)
   }
 }
-
 
 onMounted(async () => {
   const username = userStore.username
@@ -139,7 +184,7 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
-  await fetchOrders()
+  await fetchStatistics()
 })
 </script>
 

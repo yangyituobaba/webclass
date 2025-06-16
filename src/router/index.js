@@ -14,6 +14,7 @@ import productedit from '@/views/admin/productedit.vue'
 import productlist from '@/views/admin/productlist.vue'
 import adminprofile from '@/views/admin/profile.vue'
 import usermanage from '@/views/admin/usermanage.vue'
+import profileedit from '@/views/admin/profileedit.vue'
 
 //客户
 
@@ -52,6 +53,7 @@ const routes = [
             { path: 'orders', component: ordermanage },
             { path: 'users', component: usermanage },
             { path: 'profile', component: adminprofile },
+            { path: 'profileedit', component: profileedit },
         ]
     },
     {

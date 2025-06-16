@@ -31,12 +31,19 @@
         <el-form-item label="名称">
           <el-input v-model="form.name" />
         </el-form-item>
+
         <el-form-item label="价格">
           <el-input v-model="form.price" type="number" />
         </el-form-item>
+
         <el-form-item label="描述">
           <el-input type="textarea" v-model="form.description" />
         </el-form-item>
+
+        <el-form-item label="库存">
+          <el-input-number v-model="form.amount" :min="0" />
+        </el-form-item>
+
         <el-form-item label="图片">
           <el-upload
               class="upload-demo"
@@ -51,6 +58,7 @@
           </div>
         </el-form-item>
       </el-form>
+
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" @click="submitForm">确认</el-button>
@@ -98,6 +106,7 @@ const openDialog = (product = {}) => {
     name: '',
     price: 0,
     description: '',
+    amount: 0,
     imageUrl: '',
     ...product
   };
@@ -121,23 +130,37 @@ const customUpload = async (options) => {
 const submitForm = async () => {
   let res;
   if (form.value.id) {
+    // 编辑已有产品，先更新产品信息
     res = await updateProduct(form.value);
   } else {
+    // 新增产品
     res = await addProduct(form.value);
     if (res.data.code === 200) {
-      // 赋值新增产品id，方便后续上传图片
+      // 赋值新增产品id，方便上传图片
       form.value.id = res.data.data?.id || form.value.id;
     }
   }
 
   if (res.data.code === 200) {
     ElMessage.success('操作成功');
+
+    // 如果表单里有图片文件，且是新增时，要调用上传接口
+    if (form.value.imageFile && !form.value.id) {
+      // 这里逻辑是先保存产品，再上传图片
+      const uploadRes = await uploadProductImage(form.value.id, form.value.imageFile);
+      if (uploadRes.data.code === 200) {
+        form.value.imageUrl = uploadRes.data.data; // 更新图片预览
+      } else {
+        ElMessage.error('图片上传失败');
+      }
+    }
+
     fetchProducts();
-    // 弹窗保持打开，让用户上传图片
   } else {
     ElMessage.error(res.data.msg || '操作失败');
   }
 };
+
 
 
 // 删除产品

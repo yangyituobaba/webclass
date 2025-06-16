@@ -13,16 +13,39 @@ export function getOrders(token) {
             }
         }).then(res=>res.data);
 }
-// 创建订单
-export function createOrder(order,token) {
+/**
+ * 缓存“订单确认”信息到 Redis
+ * @param {Object} orderPayload
+ * @param {String} token
+ */
+export function cacheOrderConfirm(orderPayload, token) {
     return request.post(
-        `${API_BASE_URL}/create`,
-        order,
-        {
-            headers: {
-                Authorization: token
-            }
-        }
+        '/order/confirm/cache',
+        orderPayload,
+        { headers: { Authorization: token } }
+    );
+}
+
+/**
+ * 获取 Redis 中缓存的“订单确认”信息
+ * @param {String} token
+ */
+export function getOrderConfirm(token) {
+    return request.get(
+        '/order/confirm/get',
+        { headers: { Authorization: token } }
+    );
+}
+
+/**
+ * 最终创建订单（从 Redis 缓存读取）
+ * @param {String} token
+ */
+export function createOrder(token) {
+    return request.post(
+        '/order/create',
+        null,
+        { headers: { Authorization: token } }
     );
 }
 
@@ -70,7 +93,11 @@ export function getAllOrders(token) {
 // 根据商品名称关键词模糊搜索订单（适用于所有人）
 // 模糊搜索订单（公开接口，不需要 token）
 export function searchOrdersByKeyword(keyword) {
-    return request.get(`/order/search`, {
+    return request.get(`${API_BASE_URL}/search`, {
         params: { keyword }
     }).then(res => res.data);
+}
+
+export function getAdminStatistics() {
+    return request.get('order/admin/statistics').then(res => res.data);
 }

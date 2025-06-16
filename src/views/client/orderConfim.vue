@@ -8,17 +8,20 @@
 
     <div v-else>
       <el-card shadow="hover" class="order-card">
-        <ul class="order-items">
-          <li v-for="item in items" :key="item.productId" class="order-item">
-            <span class="item-name">{{ item.name }}</span>
-            <span class="item-quantity">× {{ item.quantity }}</span>
-            <span class="item-total">￥{{ (item.price * item.quantity).toFixed(2) }}</span>
-          </li>
-        </ul>
+        <el-checkbox-group v-model="selectedItemIds">
+          <ul class="order-items">
+            <li v-for="item in items" :key="item.productId" class="order-item">
+              <el-checkbox :label="item.productId" class="item-checkbox" />
+              <span class="item-name">{{ item.name }}</span>
+              <span class="item-quantity">× {{ item.quantity }}</span>
+              <span class="item-total">￥{{ (item.price * item.quantity).toFixed(2) }}</span>
+            </li>
+          </ul>
+        </el-checkbox-group>
 
         <div class="order-summary">
           <span>总价：</span>
-          <strong class="total-price">￥{{ totalPrice.toFixed(2) }}</strong>
+          <strong class="total-price">￥{{ selectedTotalPrice.toFixed(2) }}</strong>
         </div>
 
         <el-form :model="form" ref="orderForm" label-width="80px" class="order-form">
@@ -60,11 +63,11 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElMessage, ElForm } from 'element-plus';
+import { ElMessage } from 'element-plus';
 
-import { createOrder } from '@/services/order.js';
+import {cacheOrderConfirm, createOrder} from '@/services/order.js';
 import useCartStore from '@/store/modules/cartStore';
 import useUserStore from '@/store/modules/userStore';
 
@@ -73,8 +76,15 @@ const cartStore = useCartStore();
 const userStore = useUserStore();
 
 const items = computed(() => cartStore.items);
-const totalPrice = computed(() => cartStore.totalPrice);
-const username = computed(() => userStore.username);
+
+const selectedItemIds = ref(items.value.map(item => item.productId)); // 默认全选
+const selectedItems = computed(() =>
+    items.value.filter(item => selectedItemIds.value.includes(item.productId))
+);
+
+const selectedTotalPrice = computed(() =>
+    selectedItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
+);
 
 const loading = ref(false);
 const orderForm = ref(null);
@@ -85,15 +95,15 @@ const form = ref({
   remark: ''
 });
 
+
 const submitOrder = () => {
-  //检查用户是否登录，使用token进行验证
   if (!userStore.token) {
     ElMessage.error("请先登录");
     return;
   }
 
-  if (items.value.length === 0) {
-    ElMessage.warning("购物车为空");
+  if (selectedItems.value.length === 0) {
+    ElMessage.warning("请选择至少一个订单项");
     return;
   }
 
@@ -103,27 +113,34 @@ const submitOrder = () => {
     loading.value = true;
     try {
       const order = {
-        items: items.value.map(item => ({
+        items: selectedItems.value.map(item => ({
           productId: item.productId,
           quantity: item.quantity,
-          price: item.price,
+          price: item.price
         })),
-        totalPrice: totalPrice.value,
+        totalPrice: selectedTotalPrice.value,
         address: form.value.address,
-        contactPhone: form.value.phone, // ✅ 改这里
+        contactPhone: form.value.phone,
         remark: form.value.remark,
         status: "pending"
       };
 
-      console.log(order);
-      // 使用userStore中的token调用API
-      const res = await createOrder(order, userStore.token);
+      // 先缓存订单确认信息
+      const cacheRes = await cacheOrderConfirm(order, userStore.token);
+      if (cacheRes.data.code !== 200) {
+        ElMessage.error(cacheRes.data.msg || "缓存订单失败");
+        loading.value = false;
+        return;
+      }
 
-      if (res.data.code === 200) {
+      // 再调用创建订单接口，body 为空
+      const createRes = await createOrder(userStore.token);
+      if (createRes.data.code === 200) {
         ElMessage.success("订单创建成功！");
         cartStore.clearCart();
+        router.push("/client/profile");
       } else {
-        ElMessage.error(res.data.msg || "创建失败");
+        ElMessage.error(createRes.data.msg || "创建失败");
       }
     } catch (error) {
       console.error(error);
@@ -173,10 +190,15 @@ h2 {
 
 .order-item {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
   padding: 10px 0;
   font-size: 1rem;
   color: #606266;
+}
+
+.item-checkbox {
+  margin-right: 10px;
 }
 
 .item-name {

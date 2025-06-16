@@ -5,15 +5,16 @@ export const menulistt = {
         { id: 3, url: "/admin/orders", meta: { title: "订单管理", icon: "order" } },
         { id: 4, url: "/admin/users", meta: { title: "用户管理", icon: "user" } },
         { id: 5, url: "/admin/profile", meta: { title: "管理员资料", icon: "setting" } },
+        { id: 6, url: "/admin/profileedit", meta: { title: "修改资料", icon: "setting" } }
     ],
     client: [
         { id: 1, url: "/client/products", meta: { title: "浏览商品", icon: "search" } },
         { id: 2, url: "/client/confirm", meta: { title: "确认订单", icon: "confirm" } },
-        { id: 3, url: "/client/profile", meta: { title: "客户主页", icon: "user" } },
+        { id: 3, url: "/client/profile", meta: { title: "客户主页", icon: "user" } }
     ],
     delivery: [
         { id: 1, url: "/delivery/orders", meta: { title: "配送订单", icon: "car" } },
-        { id: 2, url: "/delivery/profile", meta: { title: "配送员资料", icon: "user" } },
+        { id: 2, url: "/delivery/profile", meta: { title: "配送员资料", icon: "user" } }
     ],
     default:[]
 }
