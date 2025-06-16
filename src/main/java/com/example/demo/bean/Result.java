@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class Result<T> {
+    //返回结果
     private Integer code;  // 状态码，如 200 表示成功
     private String msg;    // 提示信息
     private T data;        // 返回的数据

@@ -1,15 +1,20 @@
 spring:
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  mvc:
+    static-path-pattern: /uploads/**
+  web:
+    resources:
+      static-locations: file:uploads/
   application:
     name: demo
   datasource:
-    url: jdbc:mysql://localhost:3306/demo?characterEncoding=utf-8&serverTimezone=GMT%2B8
+    url: jdbc:mysql://localhost:3306/demo3?characterEncoding=utf-8&serverTimezone=GMT%2B8
     username: root
     password: ivan
-server:
-  port: 8000
-logging:
-  level:
-    root: INFO
 
   redis:
     host: localhost
@@ -21,3 +26,10 @@ logging:
         max-idle: 8
         min-idle: 0
         max-wait: -1
+
+server:
+  port: 8000
+
+logging:
+  level:
+    root: INFO
